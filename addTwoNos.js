@@ -10,32 +10,7 @@
 //         readline.close()
 //     })
 // })
-import chalk from 'chalk';
-
-const error = chalk.bold.red;
-const info = chalk.bold.green;
-// const name = 'Sindre';
-// console.log(chalk.green('Hello %s'), name);
-
-import readline from "readline"
-
-function readData(question){
-    const inputStream = readline.createInterface({
-        input:process.stdin,
-        output:process.stdout
-    })
-    return new Promise((resolve, reject)=>{
-        inputStream.question(question, val => {
-            inputStream.close()
-            const numVal = Number(val)
-            if(isNaN(numVal)){
-                reject(`Non number given ${val}`)
-            }
-            resolve(numVal)
-        })
-    })    
-}
-
+import {readData,error,info} from "utils"
 async function addInLoop(){
     let total = 0
     for(let i=0;i<5;i++){
