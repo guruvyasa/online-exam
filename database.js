@@ -1,5 +1,4 @@
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('exam.db');
 
 // function promisify(d){
 //     return new Promise((req,res)=>{
@@ -71,9 +70,15 @@ function getExams(){
 }
 
 const util = require("util")
-const all = util.promisify(db.all)
+// const run = util.promisify(db.run)
 
-async function foo(){
+
+
+async function getExams(){
+
+    const db = new sqlite3.Database('exam.db');
+    const all = util.promisify(db.all)
+
     try {
         const rows = await all.call(db,"select * from exam")
         console.log(rows)
@@ -81,10 +86,75 @@ async function foo(){
     } catch (error) {
         console.log(error)
     }
+    finally{
+        db.close()
+    }
+}
+
+async function getQuestions(exam_id){
+
+    const db = new sqlite3.Database('exam.db');
+    const all = util.promisify(db.all)
+
+    try {
+        const rows = await all.call(db,
+            "select * from question where exam_id = ?",[exam_id])
+        return rows
+        
+    } catch (error) {
+        console.log(error)
+        return []
+    }
+    finally{
+        db.close()
+    }
+}
+
+function createExam(exam_date,topic){ 
+    const db = new sqlite3.Database('exam.db');
+    const run = util.promisify(db.run)
+    const [year,month,day] = exam_date.split(/[-/]/)
+    try {
+        run.call(db,`insert into exam(exam_date,topic) values(?,?)`,
+        [new Date(year,month,day),topic])
+        return "success"
+    } catch (error) {
+        console.log(error)
+        return "failure"
+    }
+    finally{
+        db.close()
+    }
+}
+
+function createQuestion(exam_id,question_text,options,actual_answer){ //actual answer is int
+    const db = new sqlite3.Database('exam.db');
+    const run = util.promisify(db.run)
+    try {
+        run.call(db,`insert into question(question_text,options,answer,exam_id) 
+                    values(?,?,?,?)`,
+        [question_text,options,actual_answer,exam_id])
+        return "success"
+    } catch (error) {
+        console.log(error)
+        return "failure"
+    }
+    finally{
+        db.close()
+    }
 }
 // createTables()
-// createExam("2022/12/15","DMS")
+// createExam("2022/12/21","CO")
 // createExam("2022/12/18","CG")
 // createExam("2022/12/19","LD")
 // getExams()
-foo()
+// createQuestion(1,"Which is capital of India?",
+//     "Delhi#Bangalore#Mumbai#Chennai",0)
+
+// createQuestion(1,"Who is PM of India?",
+//     "Deve Gowda#Indira Gandhi#Modi#Rahul Gandhi",2)
+
+// createQuestion(1,"Which is capital of Karnataka?",
+//     "Delhi#Bangalore#Mumbai#Chennai",1)
+// // foo()
+// getQuestions(1).then(d=>console.log(d))
