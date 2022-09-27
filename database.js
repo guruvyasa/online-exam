@@ -47,27 +47,27 @@ function createTables(){
 
 }
 
-function createExam(exam_date,topic){ 
-    const [year,month,day] = exam_date.split(/[-/]/)
-    try {
-        db.run(`insert into exam(exam_date,topic) values(?,?)`,
-        [new Date(year,month,day),topic])
-    } catch (error) {
-        console.log(error)
-    }
-}
+// export function createExam(exam_date,topic){ 
+//     const [year,month,day] = exam_date.split(/[-/]/)
+//     try {
+//         db.run(`insert into exam(exam_date,topic) values(?,?)`,
+//         [new Date(year,month,day),topic])
+//     } catch (error) {
+//         console.log(error)
+//     }
+// }
 
-function getExams(){
-    db.all("select * from exam", (err, rows)=>{
-        if(err){
-            console.log(err)
-        }else{
-            console.log(rows)
-        }
-    })    
+// export function getExams(){
+//     db.all("select * from exam", (err, rows)=>{
+//         if(err){
+//             console.log(err)
+//         }else{
+//             console.log(rows)
+//         }
+//     })    
 
     
-}
+// }
 
 const util = require("util")
 // const run = util.promisify(db.run)
@@ -142,6 +142,13 @@ function createQuestion(exam_id,question_text,options,actual_answer){ //actual a
     finally{
         db.close()
     }
+}
+
+module.exports = {
+    getQuestions,
+    getExams,
+    createExam,
+    createQuestion
 }
 // createTables()
 // createExam("2022/12/21","CO")
