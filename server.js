@@ -30,13 +30,43 @@ app.set('views', path.join(__dirname, 'views'));
 // Path to our public directory
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded({extended:true})); 
 
 // Without this you would need to
 // supply the extension to res.render()
 // ex: res.render('users.html').
 app.set('view engine', 'html');
 
+app.get("/exam", async function(req,res){
+  let exams = await db.getExams()
+  exams = exams.map(e=>{
+    let dobj = new Date(e.exam_date)
+    console.log(dobj.getMonth()+1)
+    let new_date = dobj.getFullYear()+"/"+(dobj.getMonth()+1)+"/"+dobj.getDate()
+    return {...e,exam_date:new_date}})
+  return res.render("exam.html",{exams})
+})
 
+app.post("/exam",(req,res)=>{
+  let status = db.createExam(req.body.edate,req.body.topic)
+  return res.redirect("/exam")
+
+})
+
+app.get("/question", async function(req,res){
+  let exams = await db.getExams()
+  let questions = await db.getQuestions()
+
+  
+  return res.render("addQuestion.html",{exams,questions})
+})
+
+app.post("/question",(req,res)=>{
+  const {exam_id,question_text,options,actual_answer} = req.body
+  let status = db.createQuestion(exam_id,question_text,options,actual_answer)
+  return res.redirect("/question")
+
+})
 
 app.get('/', async function(req, res){
   let questions = await db.getQuestions(1)

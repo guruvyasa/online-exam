@@ -81,10 +81,11 @@ async function getExams(){
 
     try {
         const rows = await all.call(db,"select * from exam")
-        console.log(rows)
+        return rows
         
     } catch (error) {
         console.log(error)
+        return []
     }
     finally{
         db.close()
@@ -95,10 +96,11 @@ async function getQuestions(exam_id){
 
     const db = new sqlite3.Database('exam.db');
     const all = util.promisify(db.all)
+    let option = exam_id?` where exam_id = ${exam_id}`:""
+    let query = `select * from question ${option}`
 
     try {
-        const rows = await all.call(db,
-            "select * from question where exam_id = ?",[exam_id])
+        const rows = await all.call(db,query)
         return rows
         
     } catch (error) {
@@ -113,7 +115,8 @@ async function getQuestions(exam_id){
 function createExam(exam_date,topic){ 
     const db = new sqlite3.Database('exam.db');
     const run = util.promisify(db.run)
-    const [year,month,day] = exam_date.split(/[-/]/)
+    let [year,month,day] = exam_date.split(/[-/]/)
+    month = parseInt(month)-1
     try {
         run.call(db,`insert into exam(exam_date,topic) values(?,?)`,
         [new Date(year,month,day),topic])
